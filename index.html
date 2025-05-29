@@ -32,40 +32,6 @@
             background: #fffa;
             z-index: 99;
         }
-
-        /* ==== ปุ่มและวิดีโออัดหน้าจอ ==== */
-        #screenRecorderControls {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.6);
-            padding: 10px;
-            border-radius: 8px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            color: white;
-            font-family: sans-serif;
-        }
-        #screenRecorderControls button {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        #screenRecorderControls button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        #recordedVideo {
-            margin-top: 8px;
-            max-width: 320px;
-            max-height: 180px;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-        }
     </style>
 
 </head>
@@ -150,67 +116,6 @@
                 iTracker.VIDEO.play()
             }
 
-    </script>
-
-    <!-- ==== ส่วนเพิ่มปุ่มอัดหน้าจอ ==== -->
-    <div id="screenRecorderControls">
-        <button id="startRecordBtn">เริ่มอัดหน้าจอ</button>
-        <button id="stopRecordBtn" disabled>หยุดอัด</button>
-        <video id="recordedVideo" controls></video>
-    </div>
-
-    <script>
-      let mediaRecorder;
-      let recordedChunks = [];
-
-      const startBtn = document.getElementById('startRecordBtn');
-      const stopBtn = document.getElementById('stopRecordBtn');
-      const video = document.getElementById('recordedVideo');
-
-      startBtn.onclick = async () => {
-        recordedChunks = [];
-        try {
-          const stream = await navigator.mediaDevices.getDisplayMedia({
-            video: { mediaSource: "screen" }
-          });
-          mediaRecorder = new MediaRecorder(stream);
-
-          mediaRecorder.ondataavailable = e => {
-            if (e.data.size > 0) recordedChunks.push(e.data);
-          };
-
-          mediaRecorder.onstop = () => {
-            const blob = new Blob(recordedChunks, { type: "video/webm" });
-            const url = URL.createObjectURL(blob);
-            video.src = url;
-            video.play();
-          };
-
-          mediaRecorder.start();
-          startBtn.disabled = true;
-          stopBtn.disabled = false;
-
-          // เมื่อหยุดสตรีมหน้าจอ (คลิก stop ที่ browser)
-          stream.getVideoTracks()[0].addEventListener('ended', () => {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-              mediaRecorder.stop();
-              startBtn.disabled = false;
-              stopBtn.disabled = true;
-            }
-          });
-
-        } catch(err) {
-          alert('ไม่สามารถเริ่มอัดหน้าจอได้: ' + err);
-        }
-      };
-
-      stopBtn.onclick = () => {
-        if(mediaRecorder && mediaRecorder.state !== 'inactive'){
-          mediaRecorder.stop();
-          startBtn.disabled = false;
-          stopBtn.disabled = true;
-        }
-      };
     </script>
 </body>
 </html>
